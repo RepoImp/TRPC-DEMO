@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    ports:
+      - '6500:5432'
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - /Volumes/second/Ankur/NestJS/latest/postgressDatabase
+
+  migrate:
+    build:
+      context: .
+      args:
+        NPM_LOG_LEVEL: notice
+    command: npm run dbmigrate
+    working_dir: /
+    depends_on:
+      - development
+
+  development:
+      container_name: development
+      restart: always
+      env_file:
+        - ./.env
+      build:
+        dockerfile: Dockerfile
+      ports:
+        - 3000:3000
+      volumes:
+      - /Volumes/second/Ankur/NestJS/latest/developmentDatabase
+      links:
+        - postgres
+      depends_on:
+        - postgres
